@@ -2,29 +2,15 @@
 //  DailyMealLog.swift
 //  SmartGroceryApp
 //
-//  Created by Nivedhitha on 29/12/2025.
-//
 
 import Foundation
-//
-//struct MealPlan: Codable, Identifiable {
-//    let id: UUID
-//    var weekStartDate: Date
-//    var meals: [DailyMealLog]
-//
-//    init(id: UUID = UUID(), weekStartDate: Date, meals: [DailyMealLog]) {
-//        self.id = id
-//        self.weekStartDate = weekStartDate
-//        self.meals = meals
-//    }
-//}
 
 struct DailyMealLog: Codable {
     var date: Date
     var breakfast: Recipe?
     var lunch: Recipe?
     var dinner: Recipe?
-    
+
     private var allMeals: [Recipe] {
         var meals: [Recipe] = []
         if let breakfast { meals.append(breakfast) }
@@ -33,38 +19,36 @@ struct DailyMealLog: Codable {
         return meals
     }
 
-    private func nutritionTotal(
-        value: (Ingredient) -> Double
-    ) -> Double {
-        var total: Double = 0.0
-
+    private func nutritionTotal(value: (Ingredient) -> Double) -> Double {
+        var total: Double = 0
         for recipe in allMeals {
-            for ingredient in recipe.ingredients {
-                total += value(ingredient)
+            for row in recipe.ingredients {
+                let scale = row.quantity / 100.0
+                total += value(row.ingredient) * scale
             }
         }
-
         return total
     }
 
-    var totalCalories: Double {
-        nutritionTotal { $0.calories }
-    }
+    var totalCalories: Double { nutritionTotal { $0.calories } }
+    var totalProtein: Double { nutritionTotal { $0.protein } }
+    var totalCarbs: Double { nutritionTotal { $0.carbs } }
+    var totalFiber: Double { nutritionTotal { $0.fiber ?? 0 } }
+    var totalFat: Double { nutritionTotal { $0.fat } }
+}
 
-    var totalProtein: Double {
-        nutritionTotal { $0.protein }
+enum NutritionTotals {
+    static func aggregate(recipes: [Recipe]) -> (calories: Double, protein: Double, carbs: Double, fat: Double) {
+        var cal = 0.0, pro = 0.0, car = 0.0, fat = 0.0
+        for recipe in recipes {
+            for row in recipe.ingredients {
+                let scale = row.quantity / 100.0
+                cal += row.ingredient.calories * scale
+                pro += row.ingredient.protein * scale
+                car += row.ingredient.carbs * scale
+                fat += row.ingredient.fat * scale
+            }
+        }
+        return (cal, pro, car, fat)
     }
-
-    var totalCarbs: Double {
-        nutritionTotal { $0.carbs }
-    }
-
-    var totalFiber: Double {
-        nutritionTotal { $0.fiber ?? 0.0 }
-    }
-
-    var totalFat: Double {
-        nutritionTotal { $0.fat }
-    }
-    
 }

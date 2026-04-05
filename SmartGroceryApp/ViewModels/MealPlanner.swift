@@ -2,85 +2,98 @@
 //  MealPlanner.swift
 //  SmartGroceryApp
 //
-//  Created by Nivedhitha on 02/01/2026.
-//
 
 import Foundation
 
-class MealPlanner {
-    
-    func generateMealPlan(
+final class MealPlanner {
+
+    /// Builds seven consecutive days (from the start of `startingFrom`) using the same routine each day.
+    func generateWeeklyMealPlan(
         recipes: [Recipe],
         preferences: UserPreferences,
-        routine: MealRoutine
-    ) -> MealPlan {
-        
-        let filteredRecipes = filterRecipes(recipes, preferences)
-        
-        let breakfast = selectMeal(
-            type: routine.breakfastType,
-            from: filteredRecipes
-        )
-        
-        let lunch = selectMeal(
-            type: routine.lunchType,
-            from: filteredRecipes
-        )
-        
-        let dinner = selectMeal(
-            type: routine.dinnerType,
-            from: filteredRecipes
-        )
-        
-        return MealPlan(
-            breakfast: breakfast,
-            lunch: lunch,
-            dinner: dinner
-        )
+        routine: MealRoutine,
+        startingFrom: Date = Date(),
+        calendar: Calendar = .current
+    ) -> WeeklyMealPlan {
+        let filtered = filterRecipes(recipes, preferences)
+        let weekStart = calendar.startOfDay(for: startingFrom)
+        let days: [DailyMealPlanSlot] = (0..<7).compactMap { offset in
+            guard let date = calendar.date(byAdding: .day, value: offset, to: weekStart) else { return nil }
+            let breakfast: Recipe?
+            switch preferences.breakfastRecipePreference {
+            case .granolaMuesliOnly:
+                breakfast = nil
+            case .includeRecipes:
+                breakfast = selectMeal(type: routine.breakfastType, from: filtered)
+            }
+            return DailyMealPlanSlot(
+                date: date,
+                breakfast: breakfast,
+                lunch: selectMeal(type: routine.lunchType, from: filtered),
+                dinner: selectMeal(type: routine.dinnerType, from: filtered)
+            )
+        }
+        return WeeklyMealPlan(id: UUID(), weekStart: weekStart, days: days)
     }
-    
-    // MARK: - Filtering Logic
-    
+
     private func filterRecipes(
         _ recipes: [Recipe],
         _ preferences: UserPreferences
     ) -> [Recipe] {
-        
-        recipes.filter { recipe in
-            
-            // Diet filter
-            if preferences.dietType == "Vegetarian" &&
-                recipe.containsMeat {
-                return false
+        let dislikeTokens = preferences.dislikes
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+            .filter { !$0.isEmpty }
+
+        return recipes.filter { recipe in
+            switch preferences.dietType {
+            case "Vegetarian":
+                if recipe.containsMeat { return false }
+            case "Vegan":
+                if recipe.containsAnimalProducts { return false }
+            default:
+                break
             }
-            
-            // Allergies
+
             for allergy in preferences.allergies {
+                let token = allergy.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                guard !token.isEmpty else { continue }
                 if recipe.ingredients.contains(where: {
-                    $0.name.lowercased().contains(allergy.lowercased())
+                    $0.ingredient.name.lowercased().contains(token)
                 }) {
                     return false
                 }
             }
-            
+
+            for dislike in dislikeTokens {
+                if recipe.ingredients.contains(where: {
+                    $0.ingredient.name.lowercased().contains(dislike)
+                }) {
+                    return false
+                }
+            }
+
+            if !preferences.cuisines.isEmpty {
+                let match = preferences.cuisines.contains {
+                    $0.caseInsensitiveCompare(recipe.cuisine) == .orderedSame
+                }
+                if !match { return false }
+            }
+
             return true
         }
     }
-    
-    // MARK: - Meal Type Logic
-    
+
     private func selectMeal(
         type: MealType,
         from recipes: [Recipe]
     ) -> Recipe? {
-        
         switch type {
         case .fixed:
             return recipes.first
         case .homeCooked:
             return recipes.randomElement()
         case .outside:
-            return nil   // user eats out
+            return nil
         case .flexible:
             return recipes.randomElement()
         }

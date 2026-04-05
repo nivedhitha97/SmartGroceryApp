@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct SmartGroceryAppApp: App {
+
+    @StateObject private var planning = PlanningViewModel(ai: LocalHeuristicAIPlanner())
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainTabView()
+                .environmentObject(planning)
         }
     }
 }

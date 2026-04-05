@@ -1,0 +1,62 @@
+[
+  {
+    "id": "F1000001-0000-4000-8000-000000000001",
+    "storeName": "Albert Heijn",
+    "productName": "Chicken Breast Fillets 400g",
+    "category": "Meat",
+    "offerPrice": 4.99,
+    "regularPrice": 6.49,
+    "unitLabel": "pack",
+    "validUntil": "2026-04-12T22:00:00Z",
+    "regionId": "NL-North",
+    "notes": "Weekly protein deal"
+  },
+  {
+    "id": "F1000001-0000-4000-8000-000000000002",
+    "storeName": "Jumbo",
+    "productName": "Basmati Rice 1kg",
+    "category": "Pantry",
+    "offerPrice": 2.29,
+    "regularPrice": 2.99,
+    "unitLabel": "bag",
+    "validUntil": "2026-04-11T22:00:00Z",
+    "regionId": "NL-North",
+    "notes": null
+  },
+  {
+    "id": "F1000001-0000-4000-8000-000000000003",
+    "storeName": "Lidl",
+    "productName": "Broccoli 500g",
+    "category": "Produce",
+    "offerPrice": 1.49,
+    "regularPrice": 1.99,
+    "unitLabel": "pack",
+    "validUntil": "2026-04-10T22:00:00Z",
+    "regionId": "NL-North",
+    "notes": null
+  },
+  {
+    "id": "F1000001-0000-4000-8000-000000000004",
+    "storeName": "Albert Heijn",
+    "productName": "Whole Wheat Pasta 500g",
+    "category": "Pantry",
+    "offerPrice": 0.99,
+    "regularPrice": 1.49,
+    "unitLabel": "pack",
+    "validUntil": "2026-04-09T22:00:00Z",
+    "regionId": "Amsterdam",
+    "notes": null
+  },
+  {
+    "id": "F1000001-0000-4000-8000-000000000005",
+    "storeName": "Plus",
+    "productName": "Cherry Tomatoes 250g",
+    "category": "Produce",
+    "offerPrice": 1.19,
+    "regularPrice": 1.79,
+    "unitLabel": "pack",
+    "validUntil": "2026-04-12T22:00:00Z",
+    "regionId": "Amsterdam",
+    "notes": null
+  }
+]
